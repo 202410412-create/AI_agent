@@ -1,6 +1,6 @@
 {
-  "matchId": "a23a2a01-f95d-47e3-898d-59bfd965eb82",
-  "score": 147347,
+  "matchId": "237e5c84-55be-4b70-9534-0cd3f7f37e36",
+  "score": 283433,
   "players": [
     {
       "slotIndex": 1,
@@ -14,14 +14,14 @@
     },
     {
       "slotIndex": 3,
-      "nickname": "PLAYER 3",
-      "connected": false
+      "nickname": "BOT-BETA",
+      "connected": true
     },
     {
       "slotIndex": 4,
-      "nickname": "PLAYER 4",
-      "connected": false
+      "nickname": "BOT-GAMMA",
+      "connected": true
     }
   ],
-  "playedAt": "2026-10-29T21:15:23.246Z"
+  "playedAt": "2026-10-30T03:51:37.858Z"
 }
