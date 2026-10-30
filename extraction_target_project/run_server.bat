@@ -1,34 +1,57 @@
-@echo off
+﻿@echo off
+setlocal
+chcp 65001 >nul
 title Bullet Matrix Server Launcher
-cd /d %~dp0
+cd /d "%~dp0"
 
 echo ===================================================
-echo  Starting Bullet Matrix Host Server
+echo  Bullet Matrix 서버 실행기
 echo ===================================================
+echo [현재 폴더] %cd%
 
-:: 1. AI_agent/extraction_target_project 폴더가 하위에 있는 경우 이동
-if exist "AI_agent\extraction_target_project" (
-    cd AI_agent\extraction_target_project
-) else if exist "extraction_target_project" (
-    cd extraction_target_project
-) else if exist "..\server.js" (
-    cd ..
+where node >nul 2>&1
+if errorlevel 1 (
+    echo [오류] Node.js가 설치되어 있지 않거나 PATH에 등록되지 않았습니다.
+    pause
+    exit /b 1
 )
 
-echo [Current Directory] %cd%
-
-:: 2. 필수 Node.js 모듈(express, ws) 존재 여부 체크 및 설치
-if not exist "node_modules" (
-    echo 📦 [Auto Setup] node_modules를 찾을 수 없어 모듈을 설치합니다...
-    call npm install express ws
+if not exist "server.js" (
+    echo [오류] 현재 폴더에서 server.js를 찾을 수 없습니다.
+    pause
+    exit /b 1
 )
 
-:: 3. server.js 실행
-if exist "server.js" (
-    echo 🚀 [Server Start] server.js를 실행합니다...
-    node server.js
-) else (
-    echo ❌ [Error] 현재 경로에서 server.js 파일을 찾을 수 없습니다.
-    echo 현재 위치: %cd%
+if not exist "node_modules\express" (
+    echo [자동 설정] 필요한 모듈을 설치합니다...
+    call npm install
+    if errorlevel 1 (
+        echo [오류] npm install에 실패했습니다.
+        pause
+        exit /b 1
+    )
+)
+
+rem 실행할 때마다 미저장 랭킹 임시 기록을 초기화합니다.
+type nul > "rank.pending.json"
+echo [초기화] rank.pending.json 내용을 비웠습니다.
+
+rem 이미 실행 중인 서버가 정상 응답하면 새로 띄우지 않고 브라우저만 엽니다.
+powershell -NoProfile -Command "if ((Invoke-WebRequest -UseBasicParsing -TimeoutSec 2 http://127.0.0.1:3000/).StatusCode -eq 200) { exit 0 } else { exit 1 }" >nul 2>&1
+if not errorlevel 1 (
+    echo [안내] 서버가 이미 실행 중입니다. 브라우저를 엽니다.
+    start "" "http://localhost:3000"
+    exit /b 0
+)
+
+echo [서버 시작] http://localhost:3000
+start "" "http://localhost:3000"
+node server.js
+
+if errorlevel 1 (
+    echo.
+    echo [오류] 서버가 종료되었습니다. 위 오류 내용을 확인해 주세요.
     pause
 )
+
+endlocal
